@@ -1,0 +1,50 @@
+-- Create a function that accepts a second parameter. 
+-- Let this parameter be a character sequence. Evaluate if its value is 'min' or 'max' and based on that retrieve either the 
+-- lowest or the highest salary respectively. 
+-- If the inserted value is any string value different from ‘min’ or ‘max’, let the function return the difference 
+-- between the highest and the lowest salary of that employee.
+
+
+use employees; 
+
+drop function if exists sql_9; 
+
+delimiter $$ 
+
+create function sql_9(p_empNum INTEGER, p_word VARCHAR(30)) 
+RETURNS mediumint deterministic 
+begin 
+
+declare r_salary mediumint; 
+declare n1 mediumint; 
+declare n2 mediumint; 
+
+if UPPER(p_word) = "MAX" 
+    THEN   select MAX(e_sal.salary) into r_salary 
+    from   (select s.emp_no,s.salary 
+    from   employees as e   join   salaries s on   e.emp_no=s.emp_no) as e_sal   
+    where e_sal.emp_no=p_empNum;   
+    return r_salary; 
+
+elseif UPPER(p_word) = "MIN" 
+    THEN   select MIN(e_sal.salary) into r_salary 
+    from   (select s.emp_no,s.salary from   employees as e   join   salaries s on   e.emp_no=s.emp_no) as e_sal   
+    where e_sal.emp_no=p_empNum; 
+    return r_salary; 
+
+else   
+    select MIN(e_sal.salary) into n1 
+    from   (select s.emp_no,s.salary from   employees as e   join   salaries s on   e.emp_no=s.emp_no) as e_sal   
+    where e_sal.emp_no=p_empNum; 
+
+    select MAX(e_sal.salary) into n2 
+    from   (select s.emp_no,s.salary from   employees as e   join   salaries s on   e.emp_no=s.emp_no) as e_sal   
+    where e_sal.emp_no=p_empNum; 
+    set r_salary=(n2-n1);
+    return r_salary; 
+
+end if; 
+end$$ 
+delimiter ; 
+
+select sql_9(11356,"max");
